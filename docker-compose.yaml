@@ -1,0 +1,32 @@
+services:
+  sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver-news-telegram-bot
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Password@1
+    ports:
+      - "1433:1433"
+    networks:
+      - app-network
+    volumes:
+      - sql-data:/var/opt/mssql
+
+  news-telegram-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: news-telegram-bot
+    stdin_open: true # Keeps stdin open
+    tty: true # Allocates a pseudo-TTY
+    environment:
+      - Database__ConnectionString=Server=sqlserver-news-telegram-bot,1433;Database=ProjectA;User Id=SA;Password=Password@1;TrustServerCertificate=True;
+      - Telegram__BotToken=8190059677:AAGESlk7IzZNN9L-GJj5mLh3eyxeuLoA2II
+    depends_on:
+      - sql
+    networks:
+      - app-network
+networks:
+  app-network:
+volumes:
+  sql-data:
